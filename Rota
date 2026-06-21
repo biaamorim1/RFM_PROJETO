@@ -1,0 +1,23 @@
+// ... (código de login e início de visita já feitos)
+
+// Verifica se o botão de Auditagem está na tela e se é obrigatório
+const boundsAuditagem = await driver.$('~aba-auditagem');
+const precisaAuditar = await boundsAuditagem.isDisplayed();
+
+if (precisaAuditar) {
+    // Se precisar, executa passos de auditagem (ou pula se o app permitir)
+    console.log("Realizando auditagem obrigatória...");
+    // ... passos de auditagem ...
+} 
+
+// Se não precisar (ou após terminar), vai direto para o Pedido
+console.log("Indo para o Pedido de Venda");
+await driver.$('~btn-pedido-venda').click();
+
+// Seleção do Produto
+await driver.$('~produto-blister-premium').click();
+
+// Simulação da Bipagem do Blister
+const campoBipagem = await driver.$('~input-leitor-codigo');
+await campoBipagem.setValue('7891234567890'); // Simula a leitura do código de barras
+await driver.$('~btn-confirmar-bipagem').click();
