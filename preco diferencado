@@ -1,0 +1,49 @@
+from appium import webdriver
+from appium.webdriver.common.appiumby import AppiumBy
+import time
+
+# Configurações de conexão com o dispositivo/APK
+desired_caps = {
+    "platformName": "Android",
+    "deviceName": "Emulador_Android",
+    "app": "/caminho/para/seu/aplicativo.apk",
+    "automationName": "UiAutomator2"
+}
+
+driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_caps)
+driver.implicitly_wait(10) # Espera explícita para evitar falhas de carregamento
+
+try:
+    # 1. Validar Status do Desconto
+    driver.find_element(By.ID, "com.seuapp:id/menu_preco_diferenciado").click()
+    status_desconto = driver.find_element(By.ID, "com.seuapp:id/txt_situacao").text
+    
+    if status_desconto == "APLICADA":
+        print("Desconto aprovado! Prosseguindo para o menu Rota...")
+        
+        # 2. Ir para o menu Rota
+        driver.find_element(By.ID, "com.seuapp:id/btn_menu_rota").click()
+        
+        # 3. Selecionar o Estabelecimento
+        # (Substitua pelo ID ou texto do seu cliente de teste)
+        driver.find_element(By.ANDROID_UIAUTOMATOR, 'new UiSelector().text("Estabelecimento Teste")').click()
+        
+        # 4. Iniciar Pedido e Adicionar Item
+        driver.find_element(By.ID, "com.seuapp:id/btn_novo_pedido").click()
+        driver.find_element(By.ANDROID_UIAUTOMATOR, 'new UiSelector().text("Item Exemplo")').click()
+        
+        # Preencher quantidade
+        campo_qtd = driver.find_element(By.ID, "com.seuapp:id/input_quantidade")
+        campo_qtd.send_keys("2")
+        
+        # 5. Validação do Valor com Desconto
+        valor_final = driver.find_element(By.ID, "com.seuapp:id/txt_valor_unitario").text
+        
+        assert valor_final == "8,50", f"Erro: O valor esperado era 8,50, mas veio {valor_final}"
+        print("Teste passou! Desconto de 8,50 aplicado com sucesso no pedido.")
+        
+    else:
+        print(f"Teste abortado: O desconto está com status {status_desconto} e não 'APLICADA'.")
+
+finally:
+    driver.quit()
